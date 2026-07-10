@@ -1,0 +1,50 @@
+[gd_scene load_steps=2 format=3 uid="uid://b7iw4vnhe1gdn"]
+
+[ext_resource type="Script" uid="uid://bhevepwq8nq8k" path="res://scripts/UI/hud.gd" id="1_5fyfn"]
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1_5fyfn")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = 15.0
+offset_right = -15.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="health bar" type="ProgressBar" parent="Control"]
+texture_filter = 1
+offset_right = 195.0
+offset_bottom = 13.0
+value = 47.0
+show_percentage = false
+
+[node name="XP Bar" type="ProgressBar" parent="Control"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -195.0
+offset_bottom = 13.0
+grow_horizontal = 0
+value = 47.0
+show_percentage = false
+
+[node name="LevelText" type="RichTextLabel" parent="Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -193.0
+offset_top = 18.0
+offset_right = -2.0
+offset_bottom = 58.0
+grow_horizontal = 0
+text = "Level : "
+horizontal_alignment = 2

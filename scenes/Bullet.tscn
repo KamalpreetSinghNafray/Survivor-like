@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://d0vuuwl7dqpan" path="res://art/player/bullets.png" id="2_p1sfj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p1sfj"]
-radius = 6.0
+radius = 5.83095
 
 [node name="Bullet" type="Area2D"]
 script = ExtResource("1_hf8mt")

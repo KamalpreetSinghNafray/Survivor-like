@@ -2,8 +2,8 @@ extends CharacterBody2D
 
 @export var move_speed: float = 250.0
 @export var bullet_scene: PackedScene
-@export var fire_rate: float = 0.1
-@export var max_ammo: int = 30
+@export var fire_rate: float = 0.01
+@export var max_ammo: int = 1000
 @export var reload_time: float = 3.0
 
 @export var max_camera_offset := 120.0
@@ -18,9 +18,11 @@ extends CharacterBody2D
 @onready var muzzle: Marker2D = $WeaponPivot/Muzzle
 @onready var camera: Camera2D = $Camera2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var hud: CanvasLayer = $Hud
 
 var hp: int
 var current_ammo: int
+
 var can_shoot := true
 var is_reloading := false
 var dead := false
@@ -28,11 +30,21 @@ var dead := false
 var shake_time := 0.0
 var current_shake := 0.0
 
+var level := 1
+var xp := 0
+var xp_to_next := 10
+
 
 func _ready():
+	add_to_group("Player")
+
 	hp = max_hp
 	current_ammo = max_ammo
 
+	hud.update_health(hp, max_hp)
+	hud.update_xp(xp, xp_to_next)
+	hud.update_lvl(level)
+	print(get_groups())
 
 func _physics_process(delta):
 	if dead:
@@ -86,14 +98,12 @@ func _unhandled_input(event):
 			get_tree().reload_current_scene()
 		return
 
-	# Manual reload triggered by a dedicated input (e.g., 'R' key)
 	if event.is_action_pressed("reload"):
-		if current_ammo < max_ammo and not is_reloading:
+		if current_ammo < max_ammo and !is_reloading:
 			start_reload()
 
 
 func handle_auto_shoot():
-	# Continuously attempt to shoot while holding the button
 	if Input.is_action_pressed("shoot"):
 		try_shoot()
 
@@ -104,40 +114,42 @@ func try_shoot():
 
 	can_shoot = false
 	current_ammo -= 1
-	
+
 	shoot()
 
-	# Auto reload when magazine is empty
 	if current_ammo <= 0:
 		start_reload()
 	else:
 		await get_tree().create_timer(fire_rate).timeout
-		
-		# Ensure we didn't start a manual reload while waiting for the fire_rate timer
-		if not is_reloading:
+
+		if !is_reloading:
 			can_shoot = true
 
 
 func start_reload():
 	if is_reloading:
 		return
-		
+
 	is_reloading = true
 	can_shoot = false
-	
-	# Optional: You can trigger a reload animation/sound here
+
 	print("Reloading...")
-	
+
 	await get_tree().create_timer(reload_time).timeout
-	
-	if not dead:
+
+	if !dead:
 		current_ammo = max_ammo
 		is_reloading = false
 		can_shoot = true
-		print("Reload Complete. Ammo: ", current_ammo)
+
+		print("Reload Complete. Ammo:", current_ammo)
 
 
 func shoot():
+	if bullet_scene == null:
+		push_error("Bullet Scene is not assigned!")
+		return
+
 	var bullet = bullet_scene.instantiate()
 
 	get_tree().current_scene.add_child(bullet)
@@ -154,7 +166,9 @@ func take_damage(amount):
 	if dead:
 		return
 
-	hp -= amount
+	hp = max(hp - amount, 0)
+
+	hud.update_health(hp, max_hp)
 
 	start_camera_shake()
 
@@ -226,3 +240,29 @@ func update_camera(delta):
 		final_offset,
 		camera_smoothness * delta
 	)
+
+
+func add_xp(amount: int):
+	xp += amount
+
+	while xp >= xp_to_next:
+		level_up()
+
+	hud.update_xp(xp, xp_to_next)
+
+
+func level_up():
+	xp -= xp_to_next
+	level += 1
+
+	xp_to_next += 5
+
+	print("LEVEL", level)
+
+	hud.update_lvl(level)
+	hud.update_xp(xp, xp_to_next)
+
+	# TODO:
+	# Pause game
+	# Show upgrade cards
+	# Resume game after selectiona
