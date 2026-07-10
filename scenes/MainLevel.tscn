@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://def3p33h7gvvt"]
+
+[ext_resource type="PackedScene" uid="uid://cyotrloupbflf" path="res://scenes/player/Player.tscn" id="1_rdtvk"]
+[ext_resource type="PackedScene" uid="uid://cx3xjxiga2jie" path="res://scenes/enemy/Enemy.tscn" id="2_8m8wf"]
+[ext_resource type="Script" uid="uid://cua3kr3y8tvqn" path="res://scripts/enemy_spawner.gd" id="3_n15ua"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Player" parent="." instance=ExtResource("1_rdtvk")]
+
+[node name="Enemy" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(354, 0)
+
+[node name="EnemySpawner" type="Node2D" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("3_n15ua")
+enemy_scene = ExtResource("2_8m8wf")
+player = NodePath("../Player")

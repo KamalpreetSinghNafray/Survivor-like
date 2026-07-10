@@ -1,0 +1,155 @@
+[gd_scene load_steps=20 format=3 uid="uid://cyotrloupbflf"]
+
+[ext_resource type="Script" uid="uid://mhapnwsw741e" path="res://scripts/player/player.gd" id="1_wr5hl"]
+[ext_resource type="PackedScene" uid="uid://c7xwnwxmq04fe" path="res://scenes/Bullet.tscn" id="2_4kuee"]
+[ext_resource type="Texture2D" uid="uid://ccgfn7hdne01l" path="res://art/player/16x16 All Animations-Sheet.png" id="3_4kuee"]
+[ext_resource type="Texture2D" uid="uid://drvuul1vmujvw" path="res://art/player/Weapons.png" id="4_524rm"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_gfjak"]
+radius = 6.0
+height = 18.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_524rm"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(0, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tpg5x"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(24, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c3xxp"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(48, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_npwbq"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(72, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4kuee"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(0, 120, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v42im"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(24, 120, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pn6s4"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(48, 120, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7oing"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(72, 120, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5stf6"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(96, 120, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_180ig"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(0, 48, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_20koh"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(24, 48, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ov1oi"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(48, 48, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rn7t0"]
+atlas = ExtResource("3_4kuee")
+region = Rect2(72, 48, 24, 24)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_v42im"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_524rm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tpg5x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c3xxp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_npwbq")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4kuee")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v42im")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pn6s4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7oing")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5stf6")
+}],
+"loop": true,
+"name": &"jump",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_180ig")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_20koh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ov1oi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rn7t0")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 10.0
+}]
+
+[node name="Player" type="CharacterBody2D" groups=["Player"]]
+script = ExtResource("1_wr5hl")
+bullet_scene = ExtResource("2_4kuee")
+fire_rate = 0.2
+max_camera_offset = 80.0
+camera_smoothness = 10.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_gfjak")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -5)
+sprite_frames = SubResource("SpriteFrames_v42im")
+animation = &"jump"
+autoplay = "idle"
+frame = 1
+frame_progress = 0.173586
+
+[node name="WeaponPivot" type="Node2D" parent="."]
+
+[node name="WeaponSprite" type="Sprite2D" parent="WeaponPivot"]
+position = Vector2(11, 1)
+scale = Vector2(0.583333, 0.583333)
+texture = ExtResource("4_524rm")
+region_enabled = true
+region_rect = Rect2(31.6208, 100.275, 21.7772, 12.1729)
+
+[node name="Muzzle" type="Marker2D" parent="WeaponPivot"]
+position = Vector2(17, -1)
+
+[node name="ShootTimer" type="Timer" parent="WeaponPivot"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(3, 3)
+position_smoothing_speed = 10.0
