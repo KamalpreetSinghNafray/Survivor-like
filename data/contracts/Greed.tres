@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ContractData" load_steps=2 format=3 uid="uid://daf5t7rc6cefc"]
+
+[ext_resource type="Script" uid="uid://c74mi3g55nmlu" path="res://scripts/resources/ContractData.gd" id="1_udqfa"]
+
+[resource]
+script = ExtResource("1_udqfa")
+id = ""
+title = ""
+description = ""
+reward_text = ""
+effect = ""
+value = 1.0

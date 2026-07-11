@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=2 format=3 uid="uid://gh5cbo70cbrv"]
+
+[ext_resource type="Script" uid="uid://blku1wxftenj" path="res://scripts/resources/UpgradeData.gd" id="1_uyetr"]
+
+[resource]
+script = ExtResource("1_uyetr")
+id = "firerate"
+title = "Fire Rate +"
+description = "Shoot faster."
+effect = "fire_rate"
+value = 0.9

@@ -6,6 +6,9 @@ extends CharacterBody2D
 @export var max_ammo: int = 1000
 @export var reload_time: float = 3.0
 
+@export var bullet_damage := 1
+@export var bullet_speed := 600.0
+
 @export var max_camera_offset := 120.0
 @export var camera_smoothness := 12.0
 
@@ -19,6 +22,7 @@ extends CharacterBody2D
 @onready var camera: Camera2D = $Camera2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hud: CanvasLayer = $Hud
+@onready var choice_menu = $ChoiceMenu
 
 var hp: int
 var current_ammo: int
@@ -41,13 +45,24 @@ func _ready():
 	hp = max_hp
 	current_ammo = max_ammo
 
+	choice_menu.choice_selected.connect(_on_choice_selected)
+
 	hud.update_health(hp, max_hp)
 	hud.update_xp(xp, xp_to_next)
 	hud.update_lvl(level)
-	print(get_groups())
+
 
 func _physics_process(delta):
+
 	if dead:
+		return
+
+	if Game_Manager.should_show_contract():
+		choice_menu.show_choices(ContractDatabase.ALL)
+		return
+
+	if Game_Manager.gameplay_paused:
+		update_camera(delta)
 		return
 
 	move()
@@ -92,14 +107,18 @@ func aim():
 
 
 func _unhandled_input(event):
+
 	if dead:
 		if event.is_action_pressed("shoot"):
-			get_tree().paused = false
 			get_tree().reload_current_scene()
+		return
+
+	if Game_Manager.gameplay_paused:
 		return
 
 	if event.is_action_pressed("reload"):
 		if current_ammo < max_ammo and !is_reloading:
+			choice_menu.show_choices(UpgradeDatabase.ALL)
 			start_reload()
 
 
@@ -109,6 +128,7 @@ func handle_auto_shoot():
 
 
 func try_shoot():
+
 	if dead or !can_shoot or is_reloading:
 		return
 
@@ -127,13 +147,12 @@ func try_shoot():
 
 
 func start_reload():
+
 	if is_reloading:
 		return
 
 	is_reloading = true
 	can_shoot = false
-
-	print("Reloading...")
 
 	await get_tree().create_timer(reload_time).timeout
 
@@ -142,15 +161,17 @@ func start_reload():
 		is_reloading = false
 		can_shoot = true
 
-		print("Reload Complete. Ammo:", current_ammo)
-
 
 func shoot():
+
 	if bullet_scene == null:
 		push_error("Bullet Scene is not assigned!")
 		return
 
 	var bullet = bullet_scene.instantiate()
+
+	bullet.damage = bullet_damage
+	bullet.speed = bullet_speed
 
 	get_tree().current_scene.add_child(bullet)
 
@@ -163,6 +184,7 @@ func shoot():
 
 
 func take_damage(amount):
+
 	if dead:
 		return
 
@@ -172,25 +194,23 @@ func take_damage(amount):
 
 	start_camera_shake()
 
-	print("Player HP:", hp)
-
 	if hp <= 0:
 		die()
 
 
 func die():
+
 	if dead:
 		return
 
 	dead = true
 	can_shoot = false
+
 	velocity = Vector2.ZERO
 
 	animated_sprite.play("death")
 
 	await animated_sprite.animation_finished
-
-	get_tree().paused = true
 
 
 func start_camera_shake():
@@ -199,6 +219,7 @@ func start_camera_shake():
 
 
 func update_camera(delta):
+
 	var viewport_size = get_viewport_rect().size
 	var screen_center = viewport_size * 0.5
 
@@ -223,7 +244,6 @@ func update_camera(delta):
 		normalized = normalized.normalized() * length
 
 	var target_offset = normalized * max_camera_offset
-
 	var final_offset = target_offset
 
 	if shake_time > 0.0:
@@ -241,9 +261,9 @@ func update_camera(delta):
 		camera_smoothness * delta
 	)
 
-
 func add_xp(amount: int):
-	xp += amount
+
+	xp += int(amount * Game_Manager.xp_multiplier)
 
 	while xp >= xp_to_next:
 		level_up()
@@ -252,17 +272,77 @@ func add_xp(amount: int):
 
 
 func level_up():
+
 	xp -= xp_to_next
 	level += 1
 
 	xp_to_next += 5
 
-	print("LEVEL", level)
-
 	hud.update_lvl(level)
 	hud.update_xp(xp, xp_to_next)
 
-	# TODO:
-	# Pause game
-	# Show upgrade cards
-	# Resume game after selectiona
+	# Show upgrade menu
+	choice_menu.show_choices(UpgradeDatabase.ALL)
+
+
+func _on_choice_selected(choice):
+
+	print("CHOICE RECEIVED:", choice.title)
+
+	if choice is UpgradeData:
+		apply_upgrade(choice)
+
+	elif choice is ContractData:
+		Game_Manager.apply_contract(choice)
+		apply_contract_reward(choice)
+
+
+func apply_upgrade(upgrade: UpgradeData):
+
+	match upgrade.effect:
+
+		"damage":
+			bullet_damage += int(upgrade.value)
+
+		"fire_rate":
+			fire_rate *= upgrade.value
+
+		"move_speed":
+			move_speed += upgrade.value
+
+		"max_hp":
+			max_hp += int(upgrade.value)
+			hp += int(upgrade.value)
+			hud.update_health(hp, max_hp)
+
+		"bullet_speed":
+			bullet_speed += upgrade.value
+
+	print("Upgrade:", upgrade.title)
+
+
+func apply_contract_reward(contract: ContractData):
+
+	match contract.reward_effect:
+
+		"damage":
+			bullet_damage += int(contract.reward_value)
+
+		"fire_rate":
+			fire_rate *= contract.reward_value
+
+		"move_speed":
+			move_speed += contract.reward_value
+
+		"max_hp":
+			max_hp += int(contract.reward_value)
+			hp += int(contract.reward_value)
+			hud.update_health(hp, max_hp)
+
+		"bullet_speed":
+			bullet_speed += contract.reward_value
+
+		"xp_multiplier":
+			Game_Manager.xp_multiplier *= contract.reward_value
+
+	print("Contract Reward:", contract.reward_title)

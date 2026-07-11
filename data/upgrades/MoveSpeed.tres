@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=2 format=3 uid="uid://5r2ofnbk1y6y"]
+
+[ext_resource type="Script" uid="uid://blku1wxftenj" path="res://scripts/resources/UpgradeData.gd" id="1_1yc43"]
+
+[resource]
+script = ExtResource("1_1yc43")
+id = "move_speed"
+title = "Movement Speed"
+description = "Increases movement speed."
+effect = "move_speed"
+value = 1.0

@@ -3,60 +3,86 @@ extends Node2D
 @export var enemy_scene: PackedScene
 @export var player: Node2D
 
-# Spawning variables
-var current_spawn_time: float = 1.5
-var min_spawn_time: float = 0.2
-var difficulty_scaling: float = 0.95 # Multiplies spawn time every 10 seconds
+var base_spawn_time := 1.5
+var current_spawn_time := 1.5
+var min_spawn_time := 0.2
+var difficulty_scaling := 0.95
 
 var spawn_timer: Timer
 var difficulty_timer: Timer
 
-func _ready() -> void:
+
+func _ready():
 	randomize()
-	
-	# Setup the timer that spawns enemies
+
 	spawn_timer = Timer.new()
-	spawn_timer.wait_time = current_spawn_time
 	spawn_timer.timeout.connect(_on_spawn_timer_timeout)
 	add_child(spawn_timer)
-	spawn_timer.start()
-	
-	# Setup the timer that increases difficulty over time
+
 	difficulty_timer = Timer.new()
-	difficulty_timer.wait_time = 10.0 # Difficulty increases every 10 seconds
+	difficulty_timer.wait_time = 10.0
 	difficulty_timer.timeout.connect(_on_difficulty_timer_timeout)
 	add_child(difficulty_timer)
+
+	_update_spawn_timer()
+
+	spawn_timer.start()
 	difficulty_timer.start()
 
-func _on_spawn_timer_timeout() -> void:
-	# Don't spawn if the player is missing or dead, or if no scene is assigned
-	if not is_instance_valid(player) or not enemy_scene:
+
+func _physics_process(_delta):
+
+	if Game_Manager.gameplay_paused:
+
+		if !spawn_timer.paused:
+			spawn_timer.paused = true
+
+		if !difficulty_timer.paused:
+			difficulty_timer.paused = true
+
+	else:
+
+		spawn_timer.paused = false
+		difficulty_timer.paused = false
+
+
+func _update_spawn_timer():
+
+	spawn_timer.wait_time = current_spawn_time / Game_Manager.spawn_rate_multiplier
+
+
+func _on_spawn_timer_timeout():
+
+	if !is_instance_valid(player):
 		return
-	if player.get("dead") == true:
+
+	if player.dead:
 		return
-		
+
+	if enemy_scene == null:
+		return
+
 	var enemy = enemy_scene.instantiate()
-	
-	# Calculate a spawn position just outside the camera's view
-	# Using the viewport's longest side ensures the radius is always off-screen
+
 	var viewport_size = get_viewport().get_visible_rect().size
-	var spawn_radius = max(viewport_size.x, viewport_size.y) / 1.5 
-	
-	# Pick a random angle (TAU is 2 * PI, representing a full circle in radians)
-	var random_angle = randf() * TAU
-	var spawn_offset = Vector2(cos(random_angle), sin(random_angle)) * spawn_radius
-	
-	enemy.global_position = player.global_position + spawn_offset
-	
-	# Add enemy to the current scene tree, NOT as a child of the player
-	# This ensures enemies don't move when the spawner or player moves
+	var spawn_radius = max(viewport_size.x, viewport_size.y) / 1.5
+
+	var angle = randf() * TAU
+
+	var offset = Vector2(
+		cos(angle),
+		sin(angle)
+	) * spawn_radius
+
+	enemy.global_position = player.global_position + offset
+
 	get_tree().current_scene.add_child(enemy)
 
-func _on_difficulty_timer_timeout() -> void:
-	# Gradually decrease the time between spawns
+
+func _on_difficulty_timer_timeout():
+
 	current_spawn_time *= difficulty_scaling
-	
-	if current_spawn_time < min_spawn_time:
-		current_spawn_time = min_spawn_time
-		
-	spawn_timer.wait_time = current_spawn_time
+
+	current_spawn_time = max(current_spawn_time, min_spawn_time)
+
+	_update_spawn_timer()

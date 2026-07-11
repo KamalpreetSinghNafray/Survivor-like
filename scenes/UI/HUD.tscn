@@ -19,6 +19,7 @@ grow_vertical = 2
 
 [node name="health bar" type="ProgressBar" parent="Control"]
 texture_filter = 1
+layout_mode = 0
 offset_right = 195.0
 offset_bottom = 13.0
 value = 47.0

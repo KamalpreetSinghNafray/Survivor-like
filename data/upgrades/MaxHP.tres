@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=2 format=3 uid="uid://dt80r10sviat5"]
+
+[ext_resource type="Script" uid="uid://blku1wxftenj" path="res://scripts/resources/UpgradeData.gd" id="1_76xpg"]
+
+[resource]
+script = ExtResource("1_76xpg")
+id = "max_hp"
+title = "Max HP +1"
+description = "Increases Max HP +1."
+effect = "max_hp"
+value = 1.0

@@ -5,6 +5,7 @@ extends CharacterBody2D
 
 @export var max_hp := 3
 @export var xp_gem_scene: PackedScene
+
 @export var attack_range := 35.0
 @export var attack_damage := 1
 @export var attack_windup := 0.15
@@ -15,6 +16,7 @@ extends CharacterBody2D
 var player: CharacterBody2D
 
 var hp: int
+
 var dead := false
 var hurt := false
 var attacking := false
@@ -22,7 +24,13 @@ var can_attack := true
 
 
 func _ready():
+
 	add_to_group("Enemy")
+
+	# Apply current run modifiers
+	move_speed *= Game_Manager.enemy_speed_multiplier
+	max_hp = int(round(max_hp * Game_Manager.enemy_health_multiplier))
+	attack_damage = int(round(attack_damage * Game_Manager.enemy_damage_multiplier))
 
 	hp = max_hp
 
@@ -30,10 +38,13 @@ func _ready():
 
 
 func _physics_process(delta):
+
+	if Game_Manager.gameplay_paused:
+		return
+
 	if dead or hurt:
 		return
 
-	# Keep searching until we find the player
 	if player == null:
 		player = get_tree().get_first_node_in_group("Player")
 		if player == null:
@@ -42,12 +53,11 @@ func _physics_process(delta):
 	var dir = player.global_position - global_position
 	var distance = dir.length()
 
-	# Face player
 	if dir.x != 0:
 		animated_sprite.flip_h = dir.x < 0
 
-	# Attack
 	if distance <= attack_range:
+
 		velocity = Vector2.ZERO
 		move_and_slide()
 
@@ -56,8 +66,8 @@ func _physics_process(delta):
 
 		return
 
-	# Chase
 	if !attacking:
+
 		velocity = velocity.move_toward(
 			dir.normalized() * move_speed,
 			acceleration * delta
@@ -68,7 +78,9 @@ func _physics_process(delta):
 		if animated_sprite.animation != "walk":
 			animated_sprite.play("walk")
 
+
 func attack():
+
 	attacking = true
 	can_attack = false
 
@@ -99,6 +111,7 @@ func attack():
 
 
 func take_damage(amount):
+
 	if dead:
 		return
 
@@ -126,6 +139,7 @@ func take_damage(amount):
 
 
 func die():
+
 	if dead:
 		return
 
@@ -137,10 +151,12 @@ func die():
 
 	await animated_sprite.animation_finished
 
-	# Spawn XP Gem
 	if xp_gem_scene:
+
 		var xp_gem = xp_gem_scene.instantiate()
+
 		get_tree().current_scene.add_child(xp_gem)
+
 		xp_gem.global_position = global_position + Vector2(
 			randf_range(-8, 8),
 			randf_range(-8, 8)
