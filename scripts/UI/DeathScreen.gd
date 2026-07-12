@@ -1,27 +1,27 @@
 extends CanvasLayer
 
+@onready var restart_label = $VBoxContainer/RestartLabel
 const SAVE_PATH = "user://savegame.cfg"
 
 func show_screen(level: int, time: float, contracts: int):
+	print("showing death screen")
 	visible = true
-	
-	# Calculate score based on our formula
-	var current_score = int((level * 100) + (time * 2) + (contracts * 250))
-	
-	# Load high score
+	get_tree().paused = true
+	# Load high score from the file
 	var high_score = load_high_score()
 	
-	# Update high score if current run is better
-	if current_score > high_score:
-		high_score = current_score
+	# Update high score if the current level is higher
+	if level > high_score:
+		high_score = level
 		save_high_score(high_score)
 
+	# Format the text to show both scores
 	$VBoxContainer/Stats.text = \
-		"Score: %d\nHigh Score: %d\nLevel: %d\nTime: %.0f sec" % [
-			current_score,
-			high_score,
+		"Current Level: %d\nHigh Score: %d\nTime: %.0f sec\nContracts: %d" % [
 			level,
-			time
+			high_score,
+			time,
+			contracts
 		]
 
 func save_high_score(score: int):
@@ -45,7 +45,8 @@ func _input(event):
 		Game_Manager.reset_run()
 		get_tree().reload_current_scene()
 
-func _process(_delta):
+func _process(delta):
+	print("tick")
 	if visible:
-		$VBoxContainer/RestartLabel.modulate.a = \
-			0.5 + sin(Time.get_ticks_msec() * 0.005) * 0.5
+		var alpha := 0.6 + 0.4 * sin(Time.get_ticks_msec() * 0.008)
+		restart_label.modulate.a = alpha
