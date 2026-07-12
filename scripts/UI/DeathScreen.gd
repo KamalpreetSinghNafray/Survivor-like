@@ -39,14 +39,13 @@ func load_high_score() -> int:
 func _input(event):
 	if !visible:
 		return
-
 	if event.is_action_pressed("restart"):
+		get_tree().paused = false
 		get_viewport().set_input_as_handled() 
 		Game_Manager.reset_run()
 		get_tree().reload_current_scene()
 
 func _process(delta):
-	print("tick")
 	if visible:
 		var alpha := 0.6 + 0.4 * sin(Time.get_ticks_msec() * 0.008)
 		restart_label.modulate.a = alpha
