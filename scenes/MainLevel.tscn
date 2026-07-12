@@ -1,18 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://def3p33h7gvvt"]
+[gd_scene load_steps=6 format=3 uid="uid://def3p33h7gvvt"]
 
 [ext_resource type="PackedScene" uid="uid://cyotrloupbflf" path="res://scenes/player/Player.tscn" id="1_rdtvk"]
 [ext_resource type="PackedScene" uid="uid://cx3xjxiga2jie" path="res://scenes/enemy/Enemy.tscn" id="2_8m8wf"]
 [ext_resource type="Script" uid="uid://cua3kr3y8tvqn" path="res://scripts/enemy_spawner.gd" id="3_n15ua"]
+[ext_resource type="PackedScene" uid="uid://1kfrxhmd5m6k" path="res://scenes/enemy/BigEnemy.tscn" id="3_ykko5"]
 [ext_resource type="PackedScene" uid="uid://b74q3y7i3gcth" path="res://scenes/XPGem.tscn" id="4_jsrw5"]
 
 [node name="Node2D" type="Node2D"]
 
-[node name="Enemy" parent="." instance=ExtResource("2_8m8wf")]
-position = Vector2(136, -29)
-
 [node name="EnemySpawner" type="Node2D" parent="." node_paths=PackedStringArray("player")]
 script = ExtResource("3_n15ua")
 enemy_scene = ExtResource("2_8m8wf")
+big_enemy_scene = ExtResource("3_ykko5")
 player = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource("1_rdtvk")]
@@ -22,3 +21,6 @@ position = Vector2(-47, -43)
 
 [node name="XpGem2" parent="." instance=ExtResource("4_jsrw5")]
 position = Vector2(19, -52)
+
+[node name="Enemy" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(136, -32)

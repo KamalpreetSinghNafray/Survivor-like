@@ -1,19 +1,41 @@
 extends Node2D
 
+@export_group("Enemy Scenes")
 @export var enemy_scene: PackedScene
+@export var big_enemy_scene: PackedScene
 @export var player: Node2D
 
-var base_spawn_time := 1.5
-var current_spawn_time := 1.5
-var min_spawn_time := 0.2
-var difficulty_scaling := 0.95
+@export_group("Spawn Limits")
+@export var max_enemies: int = 100
+@export var max_big_enemies: int = 10
+
+@export_group("Elite Spawn")
+@export var elite_start_time: float = 60.0
+
+@export_range(0.0, 1.0, 0.01)
+var elite_start_chance: float = 0.10
+
+@export_range(0.0, 1.0, 0.01)
+var elite_max_chance: float = 0.33
+
+@export var elite_ramp_time: float = 240.0
+
+@export_group("Difficulty")
+@export var base_spawn_time: float = 1.5
+@export var min_spawn_time: float = 0.2
+@export var difficulty_scaling: float = 0.95
+
+var current_spawn_time: float
 
 var spawn_timer: Timer
 var difficulty_timer: Timer
 
 
 func _ready():
+
 	randomize()
+
+	current_spawn_time = base_spawn_time
 
 	spawn_timer = Timer.new()
 	spawn_timer.timeout.connect(_on_spawn_timer_timeout)
@@ -32,18 +54,8 @@ func _ready():
 
 func _physics_process(_delta):
 
-	if Game_Manager.gameplay_paused:
-
-		if !spawn_timer.paused:
-			spawn_timer.paused = true
-
-		if !difficulty_timer.paused:
-			difficulty_timer.paused = true
-
-	else:
-
-		spawn_timer.paused = false
-		difficulty_timer.paused = false
+	spawn_timer.paused = Game_Manager.gameplay_paused
+	difficulty_timer.paused = Game_Manager.gameplay_paused
 
 
 func _update_spawn_timer():
@@ -59,17 +71,32 @@ func _on_spawn_timer_timeout():
 	if player.dead:
 		return
 
-	if enemy_scene == null:
+	# Total enemy limit
+	if Game_Manager.enemy_count >= max_enemies:
 		return
 
-	var enemy = enemy_scene.instantiate()
+	var scene_to_spawn: PackedScene = enemy_scene
 
-	var viewport_size = get_viewport().get_visible_rect().size
-	var spawn_radius = max(viewport_size.x, viewport_size.y) / 1.5
+	# Elite spawn chance
+	if Game_Manager.run_time >= elite_start_time:
 
-	var angle = randf() * TAU
+		if randf() <= get_big_enemy_chance():
 
-	var offset = Vector2(
+			if Game_Manager.big_enemy_count < max_big_enemies:
+				scene_to_spawn = big_enemy_scene
+
+	if scene_to_spawn == null:
+		return
+
+	var enemy: CharacterBody2D = scene_to_spawn.instantiate()
+
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+
+	var spawn_radius: float = max(viewport_size.x, viewport_size.y) / 1.5
+
+	var angle: float = randf() * TAU
+
+	var offset: Vector2 = Vector2(
 		cos(angle),
 		sin(angle)
 	) * spawn_radius
@@ -79,10 +106,24 @@ func _on_spawn_timer_timeout():
 	get_tree().current_scene.add_child(enemy)
 
 
+func get_big_enemy_chance() -> float:
+
+	var elapsed := clampf(
+		Game_Manager.run_time - elite_start_time,
+		0.0,
+		elite_ramp_time
+	)
+
+	return lerpf(
+		elite_start_chance,
+		elite_max_chance,
+		elapsed / elite_ramp_time
+	)
+
+
 func _on_difficulty_timer_timeout():
 
 	current_spawn_time *= difficulty_scaling
-
 	current_spawn_time = max(current_spawn_time, min_spawn_time)
 
 	_update_spawn_timer()

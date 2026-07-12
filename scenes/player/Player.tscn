@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://cyotrloupbflf"]
+[gd_scene load_steps=23 format=3 uid="uid://cyotrloupbflf"]
 
 [ext_resource type="Script" uid="uid://mhapnwsw741e" path="res://scripts/player/player.gd" id="1_wr5hl"]
 [ext_resource type="PackedScene" uid="uid://c7xwnwxmq04fe" path="res://scenes/Bullet.tscn" id="2_4kuee"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://drvuul1vmujvw" path="res://art/player/Weapons.png" id="4_524rm"]
 [ext_resource type="PackedScene" uid="uid://b7iw4vnhe1gdn" path="res://scenes/UI/HUD.tscn" id="5_tpg5x"]
 [ext_resource type="PackedScene" uid="uid://7yo3gvrl7asl" path="res://scenes/UI/ChoiceMenu.tscn" id="6_c3xxp"]
+[ext_resource type="PackedScene" uid="uid://cen8b0ho84bt5" path="res://scenes/UI/DeathScreen.tscn" id="7_npwbq"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_gfjak"]
 radius = 6.0
@@ -123,8 +124,6 @@ animations = [{
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_wr5hl")
 bullet_scene = ExtResource("2_4kuee")
-fire_rate = 0.1
-max_ammo = 30
 
 [node name="PlayerStats" type="Node" parent="."]
 
@@ -160,3 +159,6 @@ position_smoothing_speed = 10.0
 [node name="Hud" parent="." instance=ExtResource("5_tpg5x")]
 
 [node name="ChoiceMenu" parent="." instance=ExtResource("6_c3xxp")]
+
+[node name="DeathScreen" parent="." instance=ExtResource("7_npwbq")]
+visible = false

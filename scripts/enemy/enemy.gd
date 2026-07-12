@@ -5,17 +5,19 @@ extends CharacterBody2D
 
 @export var max_hp := 3
 @export var xp_gem_scene: PackedScene
+@export var xp_amount: int = 1
 
 @export var attack_range := 35.0
 @export var attack_damage := 1
 @export var attack_windup := 0.15
 @export var attack_cooldown := 0.8
 
+@export var is_big_enemy := false
+
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
-var player: CharacterBody2D
-
 var hp: int
+var attack_range_sq: float
 
 var dead := false
 var hurt := false
@@ -25,14 +27,19 @@ var can_attack := true
 
 func _ready():
 
+	Game_Manager.enemy_count += 1
+
+	if is_big_enemy:
+		Game_Manager.big_enemy_count += 1
+
 	add_to_group("Enemy")
 
-	# Apply current run modifiers
 	move_speed *= Game_Manager.enemy_speed_multiplier
 	max_hp = int(round(max_hp * Game_Manager.enemy_health_multiplier))
 	attack_damage = int(round(attack_damage * Game_Manager.enemy_damage_multiplier))
 
 	hp = max_hp
+	attack_range_sq = attack_range * attack_range
 
 	animated_sprite.play("walk")
 
@@ -45,18 +52,18 @@ func _physics_process(delta):
 	if dead or hurt:
 		return
 
-	if player == null:
-		player = get_tree().get_first_node_in_group("Player")
-		if player == null:
-			return
+	var player: CharacterBody2D = Game_Manager.player
 
-	var dir = player.global_position - global_position
-	var distance = dir.length()
+	if player == null or !is_instance_valid(player):
+		return
 
-	if dir.x != 0:
+	var dir: Vector2 = player.global_position - global_position
+	var distance_sq: float = dir.length_squared()
+
+	if dir.x != 0.0:
 		animated_sprite.flip_h = dir.x < 0
 
-	if distance <= attack_range:
+	if distance_sq <= attack_range_sq:
 
 		velocity = Vector2.ZERO
 		move_and_slide()
@@ -88,14 +95,6 @@ func attack():
 
 	animated_sprite.play("attack")
 
-	await get_tree().create_timer(attack_windup).timeout
-
-	if dead or hurt:
-		return
-
-	if player and global_position.distance_to(player.global_position) <= attack_range:
-		player.take_damage(attack_damage)
-
 	await animated_sprite.animation_finished
 
 	if dead:
@@ -107,7 +106,8 @@ func attack():
 
 	await get_tree().create_timer(attack_cooldown).timeout
 
-	can_attack = true
+	if !dead:
+		can_attack = true
 
 
 func take_damage(amount):
@@ -145,6 +145,11 @@ func die():
 
 	dead = true
 
+	Game_Manager.enemy_count -= 1
+
+	if is_big_enemy:
+		Game_Manager.big_enemy_count -= 1
+
 	velocity = Vector2.ZERO
 
 	animated_sprite.play("death")
@@ -154,12 +159,36 @@ func die():
 	if xp_gem_scene:
 
 		var xp_gem = xp_gem_scene.instantiate()
+		xp_gem.xp_amount = xp_amount
 
 		get_tree().current_scene.add_child(xp_gem)
 
 		xp_gem.global_position = global_position + Vector2(
-			randf_range(-8, 8),
-			randf_range(-8, 8)
+			randf_range(-8.0, 8.0),
+			randf_range(-8.0, 8.0)
 		)
 
 	queue_free()
+
+
+func _on_animated_sprite_2d_frame_changed():
+	# NEW: Safety check in case the sprite fires a signal before the script is fully loaded
+	if animated_sprite == null:
+		return
+
+	if dead:
+		return
+
+	if animated_sprite.animation != "attack":
+		return
+
+	if animated_sprite.frame != 3:
+		return
+
+	var player: CharacterBody2D = Game_Manager.player
+
+	if player == null or !is_instance_valid(player):
+		return
+
+	if global_position.distance_squared_to(player.global_position) <= attack_range_sq:
+		player.take_damage(attack_damage)

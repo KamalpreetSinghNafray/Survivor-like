@@ -2,8 +2,8 @@ extends CharacterBody2D
 
 @export var move_speed: float = 250.0
 @export var bullet_scene: PackedScene
-@export var fire_rate: float = 0.01
-@export var max_ammo: int = 1000
+@export var fire_rate: float = 0.1
+@export var max_ammo: int = 30
 @export var reload_time: float = 3.0
 
 @export var bullet_damage := 1
@@ -41,6 +41,9 @@ var xp_to_next := 10
 
 func _ready():
 	add_to_group("Player")
+	
+	# NEW: Register the player so enemies and the spawner can find your position
+	Game_Manager.player = self
 
 	hp = max_hp
 	current_ammo = max_ammo
@@ -118,7 +121,6 @@ func _unhandled_input(event):
 
 	if event.is_action_pressed("reload"):
 		if current_ammo < max_ammo and !is_reloading:
-			choice_menu.show_choices(UpgradeDatabase.ALL)
 			start_reload()
 
 
@@ -208,9 +210,11 @@ func die():
 
 	velocity = Vector2.ZERO
 
-	animated_sprite.play("death")
-
-	await animated_sprite.animation_finished
+	$DeathScreen.show_screen(
+		level,
+		Game_Manager.run_time,
+		Game_Manager.active_contracts.size()
+	)
 
 
 func start_camera_shake():
