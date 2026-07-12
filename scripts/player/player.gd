@@ -41,7 +41,7 @@ var xp_to_next := 10
 
 func _ready():
 	add_to_group("Player")
-	
+	Game_Manager.reset_run()
 	# NEW: Register the player so enemies and the spawner can find your position
 	Game_Manager.player = self
 
@@ -112,7 +112,7 @@ func aim():
 func _unhandled_input(event):
 
 	if dead:
-		if event.is_action_pressed("shoot"):
+		if event.is_action_pressed("restart"):
 			get_tree().reload_current_scene()
 		return
 
