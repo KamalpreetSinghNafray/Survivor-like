@@ -6,7 +6,8 @@
 script = ExtResource("1_f0m3n")
 id = "over_population"
 title = "Over Population"
-description = "Double enemy spawn rate."
+description = "Double enemy spawn rate.
+50% more XP"
 reward_value = 1.0
 effect = "spawn_rate"
 value = 2.0

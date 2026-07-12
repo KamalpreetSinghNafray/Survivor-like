@@ -2,9 +2,9 @@ extends Node
 class_name UpgradeDatabase
 
 const ALL = [
-	preload("res://Data/Upgrades/Damage.tres"),
-	preload("res://Data/Upgrades/FireRate.tres"),
-	preload("res://Data/Upgrades/MoveSpeed.tres"),
-	preload("res://Data/Upgrades/MaxHP.tres"),
-	preload("res://Data/Upgrades/BulletSpeed.tres")
+	preload("res://data/upgrades/damage.tres"),
+	preload("res://data/upgrades/FireRate.tres"),
+	preload("res://data/upgrades/MoveSpeed.tres"),
+	preload("res://data/upgrades/MaxHP.tres"),
+	preload("res://data/upgrades/BulletSpeed.tres")
 ]

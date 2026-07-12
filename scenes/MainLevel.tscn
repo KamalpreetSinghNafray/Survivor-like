@@ -1,12 +1,29 @@
-[gd_scene load_steps=6 format=3 uid="uid://def3p33h7gvvt"]
+[gd_scene load_steps=10 format=3 uid="uid://def3p33h7gvvt"]
 
 [ext_resource type="PackedScene" uid="uid://cyotrloupbflf" path="res://scenes/player/Player.tscn" id="1_rdtvk"]
 [ext_resource type="PackedScene" uid="uid://cx3xjxiga2jie" path="res://scenes/enemy/Enemy.tscn" id="2_8m8wf"]
 [ext_resource type="Script" uid="uid://cua3kr3y8tvqn" path="res://scripts/enemy_spawner.gd" id="3_n15ua"]
 [ext_resource type="PackedScene" uid="uid://1kfrxhmd5m6k" path="res://scenes/enemy/BigEnemy.tscn" id="3_ykko5"]
 [ext_resource type="PackedScene" uid="uid://b74q3y7i3gcth" path="res://scenes/XPGem.tscn" id="4_jsrw5"]
+[ext_resource type="Texture2D" uid="uid://hloigrcvx34c" path="res://art/tiles/grass-alternative-3.png" id="6_xum0q"]
+[ext_resource type="Script" uid="uid://r8hdyiv7ckk8" path="res://scripts/TileGenerator.gd" id="6_yxyfn"]
 
-[node name="Node2D" type="Node2D"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_huru0"]
+texture = ExtResource("6_xum0q")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_xum0q"]
+tile_size = Vector2i(64, 64)
+sources/0 = SubResource("TileSetAtlasSource_huru0")
+
+[node name="Node2D" type="Node2D" node_paths=PackedStringArray("tile_map_layer", "player")]
+script = ExtResource("6_yxyfn")
+tile_map_layer = NodePath("TileMapLayer")
+player = NodePath("Player")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_xum0q")
 
 [node name="EnemySpawner" type="Node2D" parent="." node_paths=PackedStringArray("player")]
 script = ExtResource("3_n15ua")
@@ -23,4 +40,25 @@ position = Vector2(-47, -43)
 position = Vector2(19, -52)
 
 [node name="Enemy" parent="." instance=ExtResource("2_8m8wf")]
-position = Vector2(136, -32)
+position = Vector2(469, -380)
+
+[node name="Enemy2" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(13, -478)
+
+[node name="Enemy3" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(-434, -475)
+
+[node name="Enemy4" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(-751, -127)
+
+[node name="Enemy5" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(-561, 421)
+
+[node name="Enemy6" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(-19, 468)
+
+[node name="Enemy7" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(574, 426)
+
+[node name="Enemy8" parent="." instance=ExtResource("2_8m8wf")]
+position = Vector2(871, 47)

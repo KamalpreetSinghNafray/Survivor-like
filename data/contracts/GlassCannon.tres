@@ -6,7 +6,11 @@
 script = ExtResource("1_8odn4")
 id = "GlassCannon"
 title = "Glass Cannon"
-description = "HP becomes 1."
-reward_text = "Fire rate +25%"
+description = "Player HP becomes 1.
+Player Damage 4x"
+reward_value = 1.0
 effect = "glass_cannon"
-value = 1.0
+value = 4.0
+reward_title = ""
+reward_text = ""
+reward_effect = "none"

@@ -68,7 +68,7 @@ func apply_contract(contract: ContractData):
 				player.max_hp = 1
 				player.hp = 1
 				player.hud.update_health(player.hp, player.max_hp)
-				player.bullet_damage *= 4
+				player.bullet_damage *= contract.value
 		"no_heal":
 			pass
 

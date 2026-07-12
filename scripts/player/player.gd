@@ -24,6 +24,8 @@ extends CharacterBody2D
 @onready var hud: CanvasLayer = $Hud
 @onready var choice_menu = $ChoiceMenu
 
+
+
 var hp: int
 var current_ammo: int
 
@@ -38,6 +40,8 @@ var level := 1
 var xp := 0
 var xp_to_next := 10
 
+const UpgradeDB = preload("res://scripts/resources/Databases/UpgradeDatabase.gd")
+const ContractDB = preload("res://scripts/resources/Databases/ContractDatabase.gd")
 
 func _ready():
 	add_to_group("Player")
@@ -61,7 +65,7 @@ func _physics_process(delta):
 		return
 
 	if Game_Manager.should_show_contract():
-		choice_menu.show_choices(ContractDatabase.ALL)
+		choice_menu.show_choices(ContractDB.ALL)
 		return
 
 	if Game_Manager.gameplay_paused:
@@ -286,7 +290,7 @@ func level_up():
 	hud.update_xp(xp, xp_to_next)
 
 	# Show upgrade menu
-	choice_menu.show_choices(UpgradeDatabase.ALL)
+	choice_menu.show_choices(UpgradeDB.ALL)
 
 
 func _on_choice_selected(choice):

@@ -6,10 +6,11 @@
 script = ExtResource("1_st4km")
 id = "BloodMoon"
 title = "Blood Moon"
-description = "Enemies move 40% faster."
+description = "Player Damage +2
+Enemies move 40% faster."
 reward_value = 0.0
 effect = "enemy_speed"
 value = 1.4
 reward_title = "Sharpened Bullets"
-reward_text = "Damage +2"
+reward_text = ""
 reward_effect = "damage"

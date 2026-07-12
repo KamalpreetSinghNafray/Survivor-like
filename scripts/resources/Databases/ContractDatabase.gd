@@ -2,9 +2,9 @@ extends Node
 class_name ContractDatabase
 
 const ALL = [
-	preload("res://Data/Contracts/BloodMoon.tres"),
-	preload("res://Data/Contracts/GlassCannon.tres"),
-	preload("res://Data/Contracts/Overpopulation.tres"),
-	preload("res://Data/Contracts/NoMercy.tres"),
-	preload("res://Data/Contracts/Greed.tres")
+	preload("res://data/contracts/BloodMoon.tres"),
+	preload("res://data/contracts/GlassCannon.tres"),
+	preload("res://data/contracts/Overpopulation.tres"),
+	preload("res://data/contracts/NoMercy.tres"),
+	preload("res://data/contracts/Greed.tres")
 ]
